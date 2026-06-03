@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNA Sepatu: Present vs Future | Adidas Official</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK (Compat v10) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #030303; color: #ffffff; overflow-x: hidden; }
+        h1, h2, h3, h4, .font-oswald { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+        .adidas-stripes { background: repeating-linear-gradient(90deg, #fff, #fff 10px, transparent 10px, transparent 20px); height: 4px; width: 100px; }
+        .glass-panel { background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .btn-adidas { background-color: #ffffff; color: #000000; transition: all 0.3s ease; position: relative; overflow: hidden; z-index: 1; }
+        .btn-adidas::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background-color: #d1d1d1; z-index: -1; transform: scaleY(0); transform-origin: bottom center; transition: transform 0.3s ease; }
+        .btn-adidas:hover::after { transform: scaleY(1); }
+        .btn-adidas:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.15); }
+        .fade-in { animation: fadeIn 0.8s ease forwards; }
+        .slide-up { animation: slideUp 0.8s ease forwards; opacity: 0; transform: translateY(30px); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .scanner-line {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: #ffffff; box-shadow: 0 0 10px #ffffff, 0 0 20px #ffffff;
+            animation: scan 2s infinite ease-in-out; opacity: 0.8;
+        }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        .input-dark { background-color: #111; border: 1px solid #333; color: #fff; transition: border-color 0.3s; }
+        .input-dark:focus { outline: none; border-color: #fff; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #777; }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    <!-- Latar Belakang (Tetap ada untuk semua layar) -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-[10%] right-[10%] w-[40rem] h-[40rem] bg-gray-800 rounded-full mix-blend-screen filter blur-[150px] opacity-20"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[35rem] h-[35rem] bg-gray-900 rounded-full mix-blend-screen filter blur-[120px] opacity-30"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDQwIEwgNDAgNDAgTCA0MCAwIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-50"></div>
+    </div>
+
+    <!-- HALAMAN LOGIN -->
+    <div id="login-screen" class="min-h-screen flex flex-col items-center justify-center px-4 relative z-50">
+        <div class="mb-8 text-center slide-up">
+            <svg viewBox="0 0 50 34" width="60" height="45" fill="currentColor" class="mx-auto mb-4">
+                <path d="M33.6 32.3L23.4 14.8h8.8l10.2 17.5h-8.8zm-16.1 0L7.3 14.8h8.8l10.2 17.5h-8.8zm-16.1 0L.1 30l8.7-15.2h8.8L1.4 32.3z"/>
+            </svg>
+            <h1 class="text-4xl tracking-widest font-bold font-oswald uppercase">DNA <span class="text-gray-500">VISION</span></h1>
+            <p class="text-gray-400 text-sm mt-2 font-mono">STAFF PORTAL</p>
+        </div>
+
+        <div class="glass-panel p-8 md:p-10 rounded-2xl w-full max-w-md shadow-2xl border-t-4 border-t-white slide-up">
+            <!-- Form dengan autocomplete="off" untuk mencegah penyimpanan auto -->
+            <form id="loginForm" autocomplete="off" class="space-y-5">
+                <div id="login-error" class="hidden bg-red-900/30 border border-red-900 text-red-400 p-3 rounded text-xs font-bold text-center"></div>
+                
+                <div>
+                    <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400">Email Akses</label>
+                    <input type="email" id="email" autocomplete="off" class="w-full p-4 input-dark rounded-md border-gray-700" placeholder="admin@adidas.com" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400">Password</label>
+                    <!-- Menggunakan autocomplete="new-password" trik untuk memaksa browser tidak auto-fill -->
+                    <input type="password" id="password" autocomplete="new-password" class="w-full p-4 input-dark rounded-md border-gray-700" placeholder="••••••••" required>
+                </div>
+                
+                <button id="btn-login-submit" type="submit" class="w-full p-4 mt-4 btn-adidas font-oswald text-lg uppercase tracking-widest font-bold rounded-md flex items-center justify-center gap-2">
+                    <i class="fas fa-lock"></i> MASUK SISTEM
+                </button>
+            </form>
+            
+            <div class="mt-8 text-center border-t border-gray-800 pt-6">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">DEVELOPED BY</p>
+                <h3 class="text-xl font-bold font-oswald tracking-widest text-[#00ffcc] drop-shadow-[0_0_8px_rgba(0,255,204,0.5)]">MADE BY PROSBE</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLIKASI UTAMA (Disembunyikan sebelum login) -->
+    <div id="main-app" class="hidden">
+        <!-- Header -->
+        <header class="p-6 flex flex-col sm:flex-row justify-between items-center border-b border-gray-800/50 bg-black/30 backdrop-blur-md sticky top-0 z-40 gap-4 sm:gap-0">
+            <div class="flex items-center gap-3">
+                <svg viewBox="0 0 50 34" width="40" height="30" fill="currentColor">
+                    <path d="M33.6 32.3L23.4 14.8h8.8l10.2 17.5h-8.8zm-16.1 0L7.3 14.8h8.8l10.2 17.5h-8.8zm-16.1 0L.1 30l8.7-15.2h8.8L1.4 32.3z"/>
+                </svg>
+                <h1 class="text-2xl tracking-widest font-bold">DNA <span class="text-gray-500">EVOLUTION</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-xs font-mono text-gray-400 hidden md:flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> SYSTEM READY
+                </div>
+                <button id="btn-logout" class="text-xs font-bold uppercase tracking-wider text-red-400 hover:text-white transition flex items-center gap-2 bg-red-900/20 px-4 py-2 rounded border border-red-900/50 hover:bg-red-900">
+                    <i class="fas fa-sign-out-alt"></i> LOGOUT
+                </button>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 py-12 flex flex-col items-center">
+            <!-- Form Data User -->
+            <div id="input-container" class="w-full flex flex-col items-center">
+                <div class="text-center max-w-3xl mx-auto mb-10 slide-up">
+                    <h2 class="text-5xl md:text-7xl font-bold mb-4 uppercase tracking-tight">Kunci Menuju <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-600">Masa Depan</span></h2>
+                    <p class="text-gray-400 mb-4 text-lg font-light">Tentukan profil Anda, dan saksikan evolusi gaya Anda dari masa kini ke masa depan.</p>
+                </div>
+
+                <div class="glass-panel p-8 md:p-10 rounded-2xl w-full max-w-xl slide-up border-t-4 border-t-white shadow-2xl shadow-white/5">
+                    <form id="dnaForm" class="space-y-6">
+                        
+                        <!-- SESI 1: DATA BIOLOGIS -->
+                        <div class="mb-2">
+                            <h3 class="font-oswald text-lg border-b border-gray-700 pb-2 text-white">1. Data Biologis & Astrologi</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400">Gender</label>
+                                <select id="gender_app" class="w-full p-3 input-dark rounded-md border-gray-700" required>
+                                    <option value="Male">Pria</option><option value="Female">Wanita</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400">Usia (Thn)</label>
+                                <input type="number" id="usia_app" min="10" max="100" class="w-full p-3 input-dark rounded-md border-gray-700" placeholder="Contoh: 30" required>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400">Gol. Darah</label>
+                                <select id="goldar_app" class="w-full p-3 input-dark rounded-md border-gray-700" required>
+                                    <option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400">Tanggal Lahir</label>
+                                <input type="date" id="tglLahir_app" class="w-full p-3 input-dark rounded-md border-gray-700" required>
+                            </div>
+                        </div>
+
+                        <!-- SESI 2: PENGATURAN VISUAL -->
+                        <div class="mb-2 mt-8">
+                            <h3 class="font-oswald text-lg border-b border-gray-700 pb-2 text-white">2. Pengaturan Visual AI (11+ Opsi)</h3>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400"><i class="fas fa-camera-retro mr-1"></i> Arah Gaya Pose</label>
+                                <select id="pose_app" class="w-full p-3 input-dark rounded-md text-sm border-gray-700" required>
+                                    <option value="jump">1. Lompatan Ekstrem (Explosive Mid-Air Jump)</option>
+                                    <option value="run">2. Lari Jarak Pendek (Power Sprint)</option>
+                                    <option value="stance">3. Berdiri Elegan (Cinematic Boss Stance)</option>
+                                    <option value="float">4. Melayang Anti-Gravitasi (Zero-G Float)</option>
+                                    <option value="kick">5. Tendangan Aksi (Dynamic Action Kick)</option>
+                                    <option value="roof">6. Duduk di Tepi Atap (Urban Rooftop Sit)</option>
+                                    <option value="walk">7. Berjalan Angkuh (High-Fashion Catwalk)</option>
+                                    <option value="landing">8. Mendarat Kuat (Epic Superhero Landing)</option>
+                                    <option value="lean">9. Menyandar Santai (Cool Wall Leaning)</option>
+                                    <option value="lunge">10. Pemanasan Atletik (Deep Athletic Lunge)</option>
+                                    <option value="skate">11. Gaya Papan Luncur (Skateboard Ollie Pose)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-2 uppercase tracking-wider text-gray-400"><i class="fas fa-image mr-1"></i> Tema Latar Belakang</label>
+                                <select id="background_app" class="w-full p-3 input-dark rounded-md text-sm border-gray-700" required>
+                                    <option value="stadium">1. Stadion Atletik Malam (Futuristic Stadium)</option>
+                                    <option value="street">2. Gang Jalanan Tokyo (Neon Cyberpunk Street)</option>
+                                    <option value="studio">3. Studio Museum Minimalis (Brutalist Architecture)</option>
+                                    <option value="nature">4. Puncak Gunung Kabut (Misty Mountain Dawn)</option>
+                                    <option value="subway">5. Stasiun Kereta Bawah Tanah (Gritty Subway)</option>
+                                    <option value="rooftop">6. Atap Pencakar Langit (Skyscraper Night Skyline)</option>
+                                    <option value="court">7. Lapangan Basket Tron (Neon Led Basketball Court)</option>
+                                    <option value="mars">8. Gurun Pasir Alien (Red Mars-like Desert)</option>
+                                    <option value="lab">9. Laboratorium Sains (Sci-Fi Hologram Lab)</option>
+                                    <option value="club">10. Klub Malam Bawah Tanah (Underground Laser Club)</option>
+                                    <option value="autumn">11. Taman Kota Musim Gugur (Golden Autumn Park)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full p-4 mt-8 btn-adidas font-oswald text-xl uppercase tracking-widest font-bold flex items-center justify-center gap-3 rounded-md shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.4)] transition duration-300">
+                            Lihat Evolusi Gaya <i class="fas fa-bolt text-yellow-400"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- LAYAR LOADING -->
+            <div id="loading-screen" class="hidden flex-col items-center justify-center w-full max-w-xl py-20">
+                <div class="relative w-48 h-48 border border-gray-700 rounded-full flex items-center justify-center overflow-hidden mb-8">
+                    <div class="scanner-line"></div>
+                    <i class="fas fa-layer-group text-6xl text-gray-500 animate-pulse"></i>
+                </div>
+                <h3 class="font-oswald text-2xl mb-2 tracking-widest uppercase" id="loading-text">Menyusun Visual...</h3>
+                <p class="text-sm text-gray-500 font-mono" id="loading-subtext">Mengekstrak data Masa Kini & Masa Depan...</p>
+            </div>
+
+            <!-- HASIL DUAL ERA -->
+            <div id="result-section" class="w-full max-w-[1400px] hidden mt-4">
+                
+                <div class="text-center mb-10">
+                    <h3 id="res-dna-title" class="text-5xl md:text-7xl font-bold mb-2 text-white uppercase tracking-tighter drop-shadow-lg">PROFIL</h3>
+                    <p id="res-dna-desc" class="text-gray-400 max-w-2xl mx-auto text-lg mb-6"></p>
+                    <div class="inline-block py-1 px-4 border border-gray-600 rounded-full text-xs tracking-widest text-green-400 border-green-500 bg-green-900/20"><i class="fas fa-shield-alt mr-1"></i> ANTI-TYPO PROTOCOL ACTIVE</div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+                    
+                    <!-- KOLOM 1: MASA KINI -->
+                    <div class="glass-panel p-6 md:p-8 rounded-2xl flex flex-col h-full border-t-4 border-t-gray-400 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 bg-gray-400 text-black font-oswald px-4 py-1 font-bold tracking-widest text-sm rounded-bl-lg">ERA MASA KINI</div>
+                        <h4 class="text-3xl font-oswald uppercase mb-6 mt-4">Katalog 2026</h4>
+                        
+                        <div class="bg-[#0a0a0a] p-4 rounded-xl border border-gray-800 mb-6">
+                            <p class="text-xs text-gray-500 uppercase tracking-widest mb-1"><i class="fas fa-tshirt mr-1"></i> Apparel Standar</p>
+                            <p id="res-uniform-present" class="font-bold text-white text-sm"></p>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 mb-6">
+                            <div class="bg-gray-900 p-3 rounded text-center border border-gray-700">
+                                <span class="block text-[10px] text-gray-500 mb-1">MAIN</span>
+                                <span id="shoe-p-1" class="font-oswald text-xs leading-tight">Shoe 1</span>
+                            </div>
+                            <div class="bg-gray-900 p-3 rounded text-center border border-gray-700">
+                                <span class="block text-[10px] text-gray-500 mb-1">PANEL 1</span>
+                                <span id="shoe-p-2" class="font-oswald text-xs leading-tight">Shoe 2</span>
+                            </div>
+                            <div class="bg-gray-900 p-3 rounded text-center border border-gray-700">
+                                <span class="block text-[10px] text-gray-500 mb-1">PANEL 2</span>
+                                <span id="shoe-p-3" class="font-oswald text-xs leading-tight">Shoe 3</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-black p-4 rounded border border-gray-600 relative font-mono text-[12px] leading-relaxed text-gray-300 h-48 overflow-y-auto mb-4">
+                            <span id="prompt-output-present"></span>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <button onclick="copyPrompt('present')" id="btn-copy-present" class="w-full bg-white text-black py-3 rounded font-oswald tracking-widest text-sm hover:bg-gray-200 transition font-bold">
+                                <i class="far fa-copy"></i> SALIN PROMPT MASA KINI
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KOLOM 2: MASA DEPAN -->
+                    <div class="glass-panel p-6 md:p-8 rounded-2xl flex flex-col h-full border-t-4 border-t-yellow-400 relative overflow-hidden shadow-[0_0_30px_rgba(234,179,8,0.1)]">
+                        <div class="absolute top-0 right-0 bg-yellow-400 text-black font-oswald px-4 py-1 font-bold tracking-widest text-sm rounded-bl-lg">ERA MASA DEPAN</div>
+                        <h4 class="text-3xl font-oswald uppercase mb-6 mt-4 text-yellow-400">Konsep 2027+</h4>
+                        
+                        <div class="bg-[#1a1500] p-4 rounded-xl border border-yellow-900/50 mb-6">
+                            <p class="text-xs text-yellow-600/70 uppercase tracking-widest mb-1"><i class="fas fa-meteor mr-1"></i> Apparel Futuristik</p>
+                            <p id="res-uniform-future" class="font-bold text-yellow-100 text-sm"></p>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 mb-6">
+                            <div class="bg-black/50 p-3 rounded text-center border border-yellow-900/30 text-yellow-100">
+                                <span class="block text-[10px] text-yellow-600/70 mb-1">MAIN CONCEPT</span>
+                                <span id="shoe-f-1" class="font-oswald text-xs leading-tight">Shoe 1</span>
+                            </div>
+                            <div class="bg-black/50 p-3 rounded text-center border border-yellow-900/30 text-yellow-100">
+                                <span class="block text-[10px] text-yellow-600/70 mb-1">CONCEPT 2</span>
+                                <span id="shoe-f-2" class="font-oswald text-xs leading-tight">Shoe 2</span>
+                            </div>
+                            <div class="bg-black/50 p-3 rounded text-center border border-yellow-900/30 text-yellow-100">
+                                <span class="block text-[10px] text-yellow-600/70 mb-1">CONCEPT 3</span>
+                                <span id="shoe-f-3" class="font-oswald text-xs leading-tight">Shoe 3</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-black p-4 rounded border border-yellow-600/50 relative font-mono text-[12px] leading-relaxed text-yellow-100 h-48 overflow-y-auto mb-4">
+                            <span id="prompt-output-future"></span>
+                        </div>
+                        
+                        <div class="mt-auto">
+                            <button onclick="copyPrompt('future')" id="btn-copy-future" class="w-full bg-yellow-400 text-black py-3 rounded font-oswald tracking-widest text-sm hover:bg-yellow-300 transition font-bold">
+                                <i class="far fa-copy"></i> SALIN PROMPT MASA DEPAN
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tombol Navigasi Bawah -->
+                <div class="flex justify-center gap-4 border-t border-gray-800 pt-8">
+                    <button onclick="resetApp(false)" class="text-sm font-bold uppercase tracking-wider text-gray-400 hover:text-white transition flex items-center gap-2 bg-gray-900 px-6 py-3 rounded border border-gray-700">
+                        <i class="fas fa-edit"></i> Edit Form
+                    </button>
+                    <button onclick="resetApp(true)" class="text-sm font-bold uppercase tracking-wider text-red-400 hover:text-white transition flex items-center gap-2 bg-red-900/30 px-6 py-3 rounded border border-red-900">
+                        <i class="fas fa-trash-alt"></i> Projek Baru
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // =========================================================================
+        // FIREBASE AUTHENTICATION INIT
+        // =========================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCzj95cOokFcQIQ5lOT51xKOQiiOtIeKF4",
+            authDomain: "dnashoe.firebaseapp.com",
+            projectId: "dnashoe",
+            storageBucket: "dnashoe.firebasestorage.app",
+            messagingSenderId: "746376248719",
+            appId: "1:746376248719:web:63f7276e3a249f2af29ffa"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // DOM Elements for Auth
+        const loginScreen = document.getElementById('login-screen');
+        const mainApp = document.getElementById('main-app');
+        const loginForm = document.getElementById('loginForm');
+        const btnLogout = document.getElementById('btn-logout');
+        const loginError = document.getElementById('login-error');
+        const btnLoginSubmit = document.getElementById('btn-login-submit');
+
+        // Observer Status Login
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // User sudah login
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+            } else {
+                // User belum login atau logout
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
+                // Reset form
+                loginForm.reset();
+                loginError.classList.add('hidden');
+            }
+        });
+
+        // Event Login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            btnLoginSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> MEMPROSES...';
+            btnLoginSubmit.disabled = true;
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Berhasil masuk, onAuthStateChanged akan menanganinya
+                    btnLoginSubmit.innerHTML = '<i class="fas fa-lock"></i> MASUK SISTEM';
+                    btnLoginSubmit.disabled = false;
+                })
+                .catch((error) => {
+                    // Gagal masuk
+                    loginError.innerText = "Akses Ditolak: Cek Email dan Password Anda.";
+                    loginError.classList.remove('hidden');
+                    btnLoginSubmit.innerHTML = '<i class="fas fa-lock"></i> MASUK SISTEM';
+                    btnLoginSubmit.disabled = false;
+                });
+        });
+
+        // Event Logout
+        btnLogout.addEventListener('click', () => {
+            auth.signOut().then(() => {
+                // Berhasil logout, reset aplikasi DNA juga ke awal
+                resetApp(true);
+            }).catch((error) => {
+                alert("Gagal logout: " + error.message);
+            });
+        });
+
+        // =========================================================================
+        // DUAL DATABASE: MASA KINI (AWAL) vs MASA DEPAN (TERBARU)
+        // =========================================================================
+
+        const DATABASE_PRESENT = [
+            { name: "THE ELITE PERFORMER", desc: "Kecepatan murni dan inovasi mutakhir. Anda mendominasi lintasan.", uniform_en: "Adizero Control Pro graphene-infused track suit", uniform_id: "Setelan track suit Adizero Control Pro", shoes: ["ADIZERO PRIME X 3 STRUNG", "AE 2 SIGNATURE", "ULTRABOOST 26 4D"] },
+            { name: "THE STREET CULTURE", desc: "Arsitek gaya jalanan. Memadukan arsip klasik dengan tren masa kini.", uniform_en: "Adidas Originals oversized 3D-knit jacket", uniform_id: "Jaket oversized 3D-knit Adidas Originals", shoes: ["SAMBA XLG PREMIUM", "GAZELLE PLATFORM EVO", "NMD_W1 HYPERSLEEK"] },
+            { name: "THE AVANT-GARDE", desc: "Batas antara olahraga dan haute couture. Elegan dan tak terprediksi.", uniform_en: "avant-garde Y-3 Aerogel long coat", uniform_id: "Mantel panjang aerogel Y-3", shoes: ["FEAR OF GOD ATHLETICS II", "Y-3 GENDO RUN", "STAN SMITH LUX PRIMEKNIT"] },
+            { name: "THE GORPCORE EXPLORER", desc: "Tangguh menaklukkan medan, estetis di perkotaan.", uniform_en: "Terrex Gore-Tex Pro shell jacket", uniform_id: "Jaket shell Terrex Gore-Tex Pro", shoes: ["TERREX AGRAVIC SPEED ULTRA 2", "ROVEREND EVO", "SUPERNOVA PRIMA"] }
+        ];
+
+        const DATABASE_FUTURE = [
+            { name: "THE ELITE PERFORMER", uniform_en: "Adizero Speed-Shell aerodynamic liquid-metal suit", uniform_id: "Setelan aerodynamic liquid-metal Adizero", shoes: ["ADIZERO PRIME X 4 CONCEPT", "AE 3 PRO MAX", "4DFWD 5.0 ELITE"] },
+            { name: "THE STREET CULTURE", uniform_en: "Adidas x Wales Bonner 2027 holographic puffer jacket", uniform_id: "Jaket puffer holografis Adidas", shoes: ["SAMBA 3D PRINTED EDITION", "CAMPUS 00s METALLIC", "NMD_S1 PHANTOM"] },
+            { name: "THE AVANT-GARDE", uniform_en: "Y-3 Monochromatic silk-blend asymmetrical coat", uniform_id: "Mantel asimetris sutra Y-3", shoes: ["Y-3 ORIGIN RUNNER", "FEAR OF GOD ATHLETICS III", "TUBULAR DOOM 2027"] },
+            { name: "THE GORPCORE EXPLORER", uniform_en: "Terrex Expedition Zero-Gravity modular suit", uniform_id: "Setelan modular Terrex Zero-Gravity", shoes: ["TERREX FREE HIKER 3 ULTRA", "KOBE VINO ADV", "CLIMACOOL 2027 GORE-TEX"] }
+        ];
+
+        const POSE_LIBRARY = {
+            jump: "Shot in mid-air performing an explosive, gravity-defying jump towards the camera. Extreme dynamic energy with a dramatic low-angle perspective making the main sneakers appear oversized and heroic in the foreground.",
+            run: "Captured in a powerful, high-speed athletic sprint forcefully towards the camera. Intense focus and confident stance. Dramatic low-angle perspective emphasizing the detailed sneakers in the foreground.",
+            stance: "Striking a majestic, cinematic editorial standing pose. Exuding confidence and high-status. Commanding presence with one foot resting on an elevated architectural ledge, showcasing the sneakers perfectly in the foreground.",
+            float: "Shot floating weightlessly in mid-air in a futuristic zero-gravity pose. Relaxed but dynamic, making the main sneakers prominent and hyper-detailed in the bottom foreground.",
+            kick: "Captured mid-action delivering a powerful high kick directed slightly towards the camera lens. Aggressive athleticism. The kicking foot thrusts the highly detailed sneaker into the extreme foreground.",
+            roof: "Sitting casually on the edge of a high urban ledge or rooftop, legs dangling downward towards the viewer. Relaxed streetwear vibe. Extreme low-angle shot from below making the dangling sneakers appear massive and detailed in the foreground.",
+            walk: "Walking confidently forward in a high-fashion catwalk strut. Arrogant, cool, and commanding posture. Low-angle perspective highlighting the movement and the premium texture of the sneakers leading the step in the foreground.",
+            landing: "Captured exactly at the moment of an epic 'superhero landing'. Crouched down with one knee bent and one fist touching the ground. Intense glare. The grounded leading foot prominently displays the oversized sneakers in the extreme foreground.",
+            lean: "Leaning effortlessly back against a wall or structure with arms crossed. One leg is straight while the other is bent with the foot propped up flat against the wall behind them. The propped sneaker is shown in high detail in the foreground.",
+            lunge: "In a deep, dynamic athletic lunge or stretching pose, tying shoelaces or preparing for a sprint. The forward bent knee positions the detailed main sneaker beautifully into the foreground with a low-angle focus.",
+            skate: "Captured mid-air performing a skateboard 'ollie' pose (even without a board). Knees bent high up to the chest, sideways body angle. Dynamic street style highlighting the soles and side-profiles of the sneakers in the foreground."
+        };
+
+        const BACKGROUND_LIBRARY = {
+            stadium: "a futuristic hyper-modern Olympic running track with glowing neon lane markers at night",
+            street: "a gritty neon-drenched futuristic Tokyo street alley with holographic advertisements and rain-slicked pavement",
+            studio: "an ultra-minimalist brutalist architecture museum interior with dramatic high-contrast fashion runway lighting",
+            nature: "a breathtaking misty futuristic mountain peak at dawn with glowing bio-luminescent flora",
+            subway: "a gritty urban underground subway station with a blurred futuristic high-speed train rushing by in the background",
+            rooftop: "a terrifyingly high skyscraper rooftop edge overlooking a vast glowing cyberpunk city skyline at night",
+            court: "a dark indoor basketball court illuminated only by glowing Tron-like neon LED lines on the floor",
+            mars: "an alien, Mars-like red sand desert landscape with rocky canyons under a breathtaking twin-sun sunset",
+            lab: "a pristine, high-tech science laboratory filled with floating blue holograms and sleek white metallic surfaces",
+            club: "a dark, sweaty underground rave club illuminated by piercing red and blue laser lights and thick fog",
+            autumn: "a serene city park pathway covered in falling golden and orange autumn leaves during beautiful golden hour sunlight"
+        };
+
+        // =========================================================================
+        // LOGIKA APLIKASI FORM DNA
+        // =========================================================================
+
+        document.getElementById('dnaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            document.getElementById('input-container').classList.add('hidden');
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.classList.remove('hidden'); loadingScreen.classList.add('flex');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            setTimeout(() => {
+                const gender = document.getElementById('gender_app').value;
+                const usia = parseInt(document.getElementById('usia_app').value);
+                const goldar = document.getElementById('goldar_app').value;
+                const tglLahir = document.getElementById('tglLahir_app').value;
+                
+                const selectedPoseCode = document.getElementById('pose_app').value;
+                const selectedBgCode = document.getElementById('background_app').value;
+                
+                const poseText = POSE_LIBRARY[selectedPoseCode];
+                const bgText = BACKGROUND_LIBRARY[selectedBgCode];
+
+                const year = new Date(tglLahir).getFullYear();
+                const shioIndex = year % 12;
+                
+                let score = 0;
+                if(goldar === 'O' || goldar === 'B') score++;
+                if(shioIndex % 2 === 0) score++;
+                if(usia < 28) score++;
+
+                const finalScore = score > 3 ? 3 : score;
+                
+                // Ambil 2 Data Sekaligus (Masa Kini & Masa Depan)
+                const dnaPresent = DATABASE_PRESENT[finalScore];
+                const dnaFuture = DATABASE_FUTURE[finalScore];
+
+                // Update Header Profil
+                document.getElementById('res-dna-title').innerText = dnaPresent.name;
+                document.getElementById('res-dna-desc').innerText = dnaPresent.desc;
+                
+                // Update Kolom Present
+                document.getElementById('res-uniform-present').innerText = dnaPresent.uniform_id;
+                document.getElementById('shoe-p-1').innerText = dnaPresent.shoes[0];
+                document.getElementById('shoe-p-2').innerText = dnaPresent.shoes[1];
+                document.getElementById('shoe-p-3').innerText = dnaPresent.shoes[2];
+
+                // Update Kolom Future
+                document.getElementById('res-uniform-future').innerText = dnaFuture.uniform_id;
+                document.getElementById('shoe-f-1').innerText = dnaFuture.shoes[0];
+                document.getElementById('shoe-f-2').innerText = dnaFuture.shoes[1];
+                document.getElementById('shoe-f-3').innerText = dnaFuture.shoes[2];
+
+                // Template Dasar Prompt (Dengan Anti-Typo)
+                const basePrompt = `[IMPORTANT: USE ATTACHED PHOTO AS SUBJECT REFERENCE]. Dynamic Adidas advertisement layout. Subject is a confident, athletic ${gender} model. BEAUTY RETOUCH: Subject has a bright, clear, flawless glowing complexion, perfectly lit face with cinematic studio lighting, absolutely no oily or dull skin. ACTION: ${poseText}`;
+                const antiTypo = `(CRITICAL APPAREL INSTRUCTION: The clothing features ONLY the iconic 3-stripes and the official Adidas logo. Keep the apparel completely clean from any random letters or misspelled words).`;
+                const vibeBg = `VIBE: 8k resolution, ultra-premium commercial advertising photography. BACKGROUND: ${bgText}.`;
+
+                // Build Prompt Present
+                const promptPresent = `${basePrompt} Subject is fully dressed in an official Adidas ${dnaPresent.uniform_en}. ${antiTypo} MAIN IMAGE: Focuses heavily on the ultra-detailed Adidas ${dnaPresent.shoes[0]} on the subject's feet. Overlay crisp bold typography text reading "${dnaPresent.shoes[0]}" across this main frame. PANELS: The layout includes two modern inset side-panels featuring high-end product macro photography. PANEL 1: An extreme macro close-up showcasing the Adidas ${dnaPresent.shoes[1]}. Overlay typography text reading "${dnaPresent.shoes[1]}" inside Panel 1. PANEL 2: The innovative Adidas ${dnaPresent.shoes[2]} gleaming under cinematic spotlights. Overlay typography text reading "${dnaPresent.shoes[2]}" inside Panel 2. ${vibeBg}`;
+                
+                // Build Prompt Future
+                const promptFuture = `${basePrompt} Subject is fully dressed in an official Adidas ${dnaFuture.uniform_en}. ${antiTypo} MAIN IMAGE: Focuses heavily on the ultra-detailed Adidas ${dnaFuture.shoes[0]} on the subject's feet. Overlay crisp bold typography text reading "${dnaFuture.shoes[0]}" across this main frame. PANELS: The layout includes two modern inset side-panels featuring high-end product macro photography. PANEL 1: An extreme macro close-up showcasing the Adidas ${dnaFuture.shoes[1]}. Overlay typography text reading "${dnaFuture.shoes[1]}" inside Panel 1. PANEL 2: The innovative Adidas ${dnaFuture.shoes[2]} gleaming under cinematic spotlights. Overlay typography text reading "${dnaFuture.shoes[2]}" inside Panel 2. ${vibeBg}`;
+
+                // Inject to UI
+                document.getElementById('prompt-output-present').innerText = promptPresent;
+                document.getElementById('prompt-output-future').innerText = promptFuture;
+
+                loadingScreen.classList.remove('flex'); loadingScreen.classList.add('hidden');
+                const resSection = document.getElementById('result-section');
+                resSection.classList.remove('hidden'); resSection.classList.add('fade-in');
+            }, 2000);
+        });
+
+        function copyPrompt(era) {
+            const promptId = era === 'present' ? 'prompt-output-present' : 'prompt-output-future';
+            const btnId = era === 'present' ? 'btn-copy-present' : 'btn-copy-future';
+            
+            const promptText = document.getElementById(promptId).innerText;
+            const textArea = document.createElement("textarea");
+            textArea.value = promptText; document.body.appendChild(textArea); textArea.select();
+            
+            try {
+                document.execCommand('copy'); 
+                const btn = document.getElementById(btnId);
+                const originalHtml = btn.innerHTML;
+                const originalClasses = btn.className;
+                
+                btn.innerHTML = '<i class="fas fa-check mr-2"></i> BERHASIL DISALIN';
+                btn.className = "w-full bg-green-500 text-white py-3 rounded font-oswald tracking-widest text-sm transition font-bold";
+                
+                setTimeout(() => { 
+                    btn.innerHTML = originalHtml; 
+                    btn.className = originalClasses;
+                }, 2500);
+            } catch (err) {
+                console.error('Gagal menyalin:', err);
+                alert('Silakan blok dan salin teks secara manual.');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function resetApp(fullReset) {
+            document.getElementById('result-section').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('fade-in');
+            document.getElementById('input-container').classList.remove('hidden');
+            document.getElementById('input-container').classList.add('slide-up');
+            
+            if(fullReset) {
+                document.getElementById('dnaForm').reset();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
